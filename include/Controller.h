@@ -1,25 +1,30 @@
-#pragma once 
+#pragma once
 
-//includes:
+// --- includes --- 
 #include <SFML/Graphics.hpp>
-#include <memory>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <fstream>
-#include <cstdlib>
-
-#include"ToolBar.h"
-
-
-class Controller {
-
+#include "Macros.h"
+#include "Button.h"
+class Controller
+{
 private:
+    enum class Difficulty
+    {
+        Easy,
+        Medium,
+        Hard
+    };
 
+    Button m_easyBotton;
+    Button m_midumButton;
+    Button m_hardButton;
+    Button m_exitButton;
 
+    Difficulty m_diffculty;
+
+    sf::Font m_font;
 
 public:
-	Controller();
-	void run(sf::RenderWindow& window , std::string level);
-	~Controller();
+    Controller();
+    void run(sf::RenderWindow* window);
+    bool handleClick(const sf::Event::MouseButtonEvent& event, sf::RenderWindow* window);
 };
