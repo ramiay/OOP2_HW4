@@ -5,26 +5,36 @@
 #include "Hexagon.h"
 #include <fstream>
 #include <iostream>
-
-// In the board class:
-const int m_drawingHeight = 0.85 * BOARD_HEIGHT;
-const int m_drawingWidth = BOARD_WIDTH;
-const int m_startHeight = 0.15 * BOARD_HEIGHT;
+#include <cstdlib>  
+#include <queue>
 
 
 class Board{
 
 private:
-	Hexagon m_hex;
+	std::vector<std::vector<Hexagon>> m_board;
+
+	const int m_drawingHeight = 0.9 * BOARD_HEIGHT;
+	const int m_drawingWidth = BOARD_WIDTH;
+
+	const int m_startHeight = 0.1 * BOARD_HEIGHT;
+	const int m_startWidth = 0;
 
 
+	int m_rowsNum;
+	int m_colsNum;
+
+	//player percentage:
+	double m_playerPercentage;
+	double m_computerPercentage;
+	//player's occupied hexagons:
+	std::vector<std::vector<Hexagon>> m_playerOccupiedHexagons;
+	std::vector<std::vector<Hexagon>> m_computerOccupiedHexagons;
 public:
 
 	Board();
-	void CreatBoard();
-	void FillRandomColor();
 	~Board() {};
-
-
-
+	void drawBoard(sf::RenderWindow* window);
+	int movePlayer(HexColor desiredColor);
+	//int moveComputer(Difficulty diffculty);
 };

@@ -18,6 +18,8 @@ StartMenu::StartMenu()
 
 
 
+
+
 	//-----------------------------------------------------
 
 	while (m_window->isOpen())
@@ -41,7 +43,6 @@ StartMenu::StartMenu()
 
 
 
-
 		//Display on the window:
 		m_window->display();
 
@@ -60,30 +61,8 @@ StartMenu::StartMenu()
 				break;
 				//mouse houvering over buttons:
 			case sf::Event::MouseMoved:
-				// ======== hovering over start button: =========
-				if (m_start_button.isMouseOver(*m_window))
-				{
-					m_start_button.setTextColor(sf::Color::Blue);
-				}
-				else
-					m_start_button.setTextColor(sf::Color::Yellow);
-				// ==============================================
-				// ======== hovering over Help button: =========
-				if (m_help_button.isMouseOver(*m_window))
-				{
-					m_help_button.setTextColor(sf::Color::Blue);
-				}
-				else
-					m_help_button.setTextColor(sf::Color::Yellow);
-				// ==============================================
-				// ======== hovering over Exit button: =========
-				if (m_exit_button.isMouseOver(*m_window))
-				{
-					m_exit_button.setTextColor(sf::Color::Red);
-				}
-				else
-					m_exit_button.setTextColor(sf::Color::Yellow);
-				// ==============================================
+				handleHoverOver(m_window);
+				break;
 			}
 		}
 	}
@@ -112,5 +91,34 @@ void StartMenu::handleClick(const sf::Event::MouseButtonEvent& event)
 		helpWindow.help_run(m_window);
 	}
 
+	
 }
 //-------------------------------------------------------------------
+
+void StartMenu::handleHoverOver(sf::RenderWindow* window)
+{
+	// ======== hovering over start button: =========
+	if (m_start_button.isMouseOver(*m_window))
+	{
+		m_start_button.setTextColor(sf::Color::Blue);
+	}
+	else
+		m_start_button.setTextColor(sf::Color::Yellow);
+	// ==============================================
+	// ======== hovering over Help button: =========
+	if (m_help_button.isMouseOver(*m_window))
+	{
+		m_help_button.setTextColor(sf::Color::Blue);
+	}
+	else
+		m_help_button.setTextColor(sf::Color::Yellow);
+	// ==============================================
+	// ======== hovering over Exit button: =========
+	if (m_exit_button.isMouseOver(*m_window))
+	{
+		m_exit_button.setTextColor(sf::Color::Red);
+	}
+	else
+		m_exit_button.setTextColor(sf::Color::Yellow);
+	// ==============================================
+}

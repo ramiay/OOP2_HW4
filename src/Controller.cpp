@@ -7,7 +7,7 @@ Controller::Controller()
     m_font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
 
     //For the Diffuclty selection:
-    // =========================
+    // ===========================
     //setting the start button:
     m_easyBotton.setButtonInfo("Easy Mode", { 0.2 * BOARD_WIDTH , 0.12 * BOARD_HEIGHT }, 0.05 * BOARD_HEIGHT,
         sf::Color::Transparent, sf::Color::Yellow, { 0.4 * BOARD_WIDTH , 0.2 * BOARD_HEIGHT }, m_font);
@@ -27,6 +27,7 @@ Controller::Controller()
 void Controller::run(sf::RenderWindow* window)
 {
     bool diffcultySelected = false;
+    //presenting the diffuclty screen:
     while (window->isOpen() && !diffcultySelected)
     {
         window->clear();
@@ -40,6 +41,7 @@ void Controller::run(sf::RenderWindow* window)
         //Display:
         window->display();
 
+        
         if (auto event = sf::Event{}; window->pollEvent(event))
         {
             switch (event.type)
@@ -50,43 +52,40 @@ void Controller::run(sf::RenderWindow* window)
 
             case sf::Event::MouseButtonReleased:
                 diffcultySelected = handleClick(event.mouseButton, window);
-                printf("Took Diff\n");
                 break;
                 //mouse houvering over buttons:
             case sf::Event::MouseMoved:
-                // ======== hovering over easy button: =========
-                if (m_easyBotton.isMouseOver(*window))
-                {
-                    m_easyBotton.setTextColor(sf::Color::Blue);
-                }
-                else
-                    m_easyBotton.setTextColor(sf::Color::Yellow);
-                // ==============================================
-                // ======== hovering over medium button: =========
-                if (m_midumButton.isMouseOver(*window))
-                {
-                    m_midumButton.setTextColor(sf::Color::Blue);
-                }
-                else
-                    m_midumButton.setTextColor(sf::Color::Yellow);
-                // ==============================================
-                // ======== hovering over hard button: =========
-                if (m_hardButton.isMouseOver(*window))
-                {
-                    m_hardButton.setTextColor(sf::Color::Red);
-                }
-                else
-                    m_hardButton.setTextColor(sf::Color::Yellow);
-                // ==============================================
-                // ======== hovering over Exit button: =========
-                if (m_exitButton.isMouseOver(*window))
-                {
-                    m_exitButton.setTextColor(sf::Color::Red);
-                }
-                else
-                    m_exitButton.setTextColor(sf::Color::Yellow);
-                // ==============================================
+                handleHoverOver(window);
+                break;
+            }
+        }
+    }
 
+    //We took the diffculty now we build the board:
+    auto board = Board();
+    auto toolframe = ToolFrame();
+
+    while (window->isOpen())
+    {
+        window->clear();
+        board.drawBoard(window);
+        toolframe.drawFrame(window);
+        window->display();
+
+
+
+        if (auto event = sf::Event{}; window->waitEvent(event))
+        {
+            switch (event.type)
+            {
+            case sf::Event::Closed:
+                window->close();
+                break;
+            case sf::Event::MouseButtonReleased: // check which color the player clicked:
+                auto pressedColor = toolframe.checkIfColorClicked(event.mouseButton, window);
+                board.movePlayer(pressedColor);
+                //board.handleComputer(m_diffculty);
+                break;
             }
         }
     }
@@ -126,4 +125,40 @@ bool Controller::handleClick(const sf::Event::MouseButtonEvent& event, sf::Rende
         return false;
     }
 
+}
+
+void Controller::handleHoverOver(sf::RenderWindow* window)
+{
+    // ======== hovering over easy button: =========
+    if (m_easyBotton.isMouseOver(*window))
+    {
+        m_easyBotton.setTextColor(sf::Color::Blue);
+    }
+    else
+        m_easyBotton.setTextColor(sf::Color::Yellow);
+    // ==============================================
+    // ======== hovering over medium button: =========
+    if (m_midumButton.isMouseOver(*window))
+    {
+        m_midumButton.setTextColor(sf::Color::Blue);
+    }
+    else
+        m_midumButton.setTextColor(sf::Color::Yellow);
+    // ==============================================
+    // ======== hovering over hard button: =========
+    if (m_hardButton.isMouseOver(*window))
+    {
+        m_hardButton.setTextColor(sf::Color::Red);
+    }
+    else
+        m_hardButton.setTextColor(sf::Color::Yellow);
+    // ==============================================
+    // ======== hovering over Exit button: =========
+    if (m_exitButton.isMouseOver(*window))
+    {
+        m_exitButton.setTextColor(sf::Color::Red);
+    }
+    else
+        m_exitButton.setTextColor(sf::Color::Yellow);
+    // ==============================================
 }

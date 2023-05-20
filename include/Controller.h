@@ -4,15 +4,13 @@
 #include <SFML/Graphics.hpp>
 #include "Macros.h"
 #include "Button.h"
+#include "Board.h"
+#include "ToolFrame.h"
+
 class Controller
 {
 private:
-    enum class Difficulty
-    {
-        Easy,
-        Medium,
-        Hard
-    };
+    
 
     Button m_easyBotton;
     Button m_midumButton;
@@ -23,8 +21,12 @@ private:
 
     sf::Font m_font;
 
+    //NEW BUTTON:
+
+
 public:
     Controller();
     void run(sf::RenderWindow* window);
     bool handleClick(const sf::Event::MouseButtonEvent& event, sf::RenderWindow* window);
+    void handleHoverOver(sf::RenderWindow* window);
 };

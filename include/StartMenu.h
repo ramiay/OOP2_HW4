@@ -40,5 +40,5 @@ private:
 	// ====================================
 	//function to handle mouse clicks:
 	void handleClick(const sf::Event::MouseButtonEvent& event);
-	/*void handleMouseOver(Button which_button);*/
+	void handleHoverOver(sf::RenderWindow* window);
 };
