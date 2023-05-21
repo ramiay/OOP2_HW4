@@ -7,12 +7,15 @@
 #include <iostream>
 #include <cstdlib>  
 #include <queue>
+#include "ToolFrame.h"
 
 
 class Board{
 
 private:
 	std::vector<std::vector<Hexagon>> m_board;
+	void createAdjacentLists();
+
 
 	const int m_drawingHeight = 0.9 * BOARD_HEIGHT;
 	const int m_drawingWidth = BOARD_WIDTH;
@@ -24,17 +27,21 @@ private:
 	int m_rowsNum;
 	int m_colsNum;
 
+
+
 	//player percentage:
 	double m_playerPercentage;
 	double m_computerPercentage;
-	//player's occupied hexagons:
-	std::vector<std::vector<Hexagon>> m_playerOccupiedHexagons;
-	std::vector<std::vector<Hexagon>> m_computerOccupiedHexagons;
+
 public:
 
 	Board();
 	~Board() {};
 	void drawBoard(sf::RenderWindow* window);
-	int movePlayer(HexColor desiredColor);
+	void movePlayer(HexColor desiredColor);
+	void moveComputer(Difficulty desired_diffuclty);
+	float getPlayerPercentage() const;
+	float getComputerPercentage() const;
+	HexColor maxNeighborColor(int col, int row);
 	//int moveComputer(Difficulty diffculty);
 };

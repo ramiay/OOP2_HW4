@@ -3,6 +3,8 @@
 #include "Macros.h"
 #include "Button.h"
 #include <SFML/Graphics.hpp>
+#include "Controller.h"
+#include "Controller.h"
 
 
 class ToolFrame
@@ -16,9 +18,10 @@ private:
 	Hexagon m_magnetaHex;
 
 
-	float m_playerPercentage;
-	float m_computerPercentage;
+	sf::Text m_playerPercentage;
+	sf::Text m_computerPercentage;
 
+	sf::Font font;
 
 	Button m_newButtom;
 
@@ -27,5 +30,7 @@ public:
 	~ToolFrame() {};
 	void drawFrame(sf::RenderWindow* window);
 	HexColor checkIfColorClicked(const sf::Event::MouseButtonEvent& event, sf::RenderWindow* window);
-
+	void setPlayerPercentage(float new_percentage);
+	void setComputerPercentage(float new_percentage);
+	const Button& getNewButton() const;
 };

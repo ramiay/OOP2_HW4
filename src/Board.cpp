@@ -18,9 +18,6 @@ Board::Board()
             Hexagon hexagon;
             hexagon.setPosition({ colPosition, rowPosition });
 
-            // SHOULD ADD A CONDITION TO KNOW IF THE HEX IS ON EDGE:
-
-
             // Set the color randomly:
             HexColor randomColor = static_cast<HexColor>(std::rand() % static_cast<int>(HexColor::Magneta) + 1);
             hexagon.setColor(randomColor);
@@ -36,18 +33,10 @@ Board::Board()
         colPosition = m_startWidth + rowDeviation;
         rowPosition += (3.0f / 4.0f) * ((RADIUS + 1) * 2);
     }
-    ////initiate the players occupied hexagons:
-    //m_playerOccupiedHexagons.resize(m_rowsNum, std::vector<Hexagon>(m_colsNum));
 
-    ////make sure to set them as Invalid Color:
-    //for (int row = 0; row < m_rowsNum; row++)
-    //{
-    //    for (int col = 0; col < m_colsNum; col++)
-    //    {
-    //        m_playerOccupiedHexagons[row][col] = m_board[row][col];
-    //        m_playerOccupiedHexagons[row][col].setColor(HexColor::Invalid);
-    //    }
-    //}
+
+    createAdjacentLists();
+
 }
 
 void Board::drawBoard(sf::RenderWindow* window)
@@ -58,19 +47,46 @@ void Board::drawBoard(sf::RenderWindow* window)
         {
             // Draw the hexagons from m_board vector
             window->draw(m_board[row][col].getShape());
+        }
+    }
 
-            //    // Draw the hexagons from m_playerOccupiedHexagons vector
-            //    if (m_board[row][col].occupiedStatus()) 
-            //        window->draw(m_[row][col].getShape());
-            //
+}
+
+void Board::createAdjacentLists(){
+    
+    for (int row = 0; row < m_board.size(); row++)
+    {
+        for (int col = 0; col < m_board[0].size(); col++)
+        {
+            int offset = row % 2 == 0 ? -1 : 0;
+            //so we can travel on the neighbors on modular way:
+            int dx[] = { -1, 1,  0,  1, 0, 1 };
+            int dy[] = { 0, 0, -1, -1, 1, 1 };
+
+            for (int i = 0; i < 6; i++)
+            {
+                int newRow = row + dx[i];
+                if (dy[i] != 0)
+                    newRow += offset;
+                int newCol = col + dy[i];
+
+                // Check if the neighboring hexagon is within bounds
+                if (newRow >= 0 && newRow < m_board.size() && newCol >= 0 && newCol < m_board[0].size())
+                {
+                    auto newHex = std::make_shared<Hexagon>(m_board[newRow][newRow]);
+                    m_board[row][col].addAdjacent(newHex);
+
+                }
+            }
         }
     }
 }
 
-int Board::movePlayer(HexColor desiredColor)
+void Board::movePlayer(HexColor desiredColor)
 {
+
     if (desiredColor == HexColor::Invalid)
-        return -1;
+        return;
 
     std::queue<std::pair<int, int>> queue;
 
@@ -81,10 +97,10 @@ int Board::movePlayer(HexColor desiredColor)
     int dx[] = { -1, -1, 0, 0, 1, 1 };
     int dy[] = { 0, 1, -1, 1, -1, 0 };
 
-    
+
     // Update the starting hexagon and enqueue it for BFS
     m_board[startRow][startCol].setColor(desiredColor);
-    m_board[startRow][startCol].setOccupiedStatus(true);
+    m_board[startRow][startCol].setOccupiedByPlayerStatus(true);
     queue.push({ startRow, startCol });
 
     // Perform BFS to update the connected hexagons with the desired color
@@ -94,7 +110,7 @@ int Board::movePlayer(HexColor desiredColor)
         int col = queue.front().second;
         queue.pop();
 
-        // Check and update the neighboring hexagons with the desired color
+        // Check and update the neighboring hexagons with a different color
         for (int i = 0; i < 6; i++)
         {
             int newRow = row + dx[i];
@@ -103,39 +119,218 @@ int Board::movePlayer(HexColor desiredColor)
             // Check if the neighboring hexagon is within bounds
             if (newRow >= 0 && newRow < m_rowsNum && newCol >= 0 && newCol < m_colsNum)
             {
-                //if the neigbor is already occupied then color 
-                if (m_board[newRow][newCol].occupiedStatus() == true)
+                if (m_board[newRow][newCol].getColor() == desiredColor)
                 {
+                    if (!m_board[newRow][newCol].isOccupiedByPlayer() && !m_board[newRow][newCol].isOccupiedByComputer())
+                    {
+                        m_board[newRow][newCol].setOccupiedByPlayerStatus(true);
+                        queue.push({ newRow, newCol });
+                    }
+                }
+                else if (m_board[newRow][newCol].isOccupiedByPlayer()) {
                     m_board[newRow][newCol].setColor(desiredColor);
                     queue.push({ newRow, newCol });
                 }
-
-
-                if (m_board[newRow][newCol].getColor() == desiredColor)
-                {
-                    m_board[newRow][newCol].setOccupiedStatus(true);
-                    queue.push({ newRow, newCol });
-                }
-
             }
         }
     }
+    //calculate the player percentage:
+    int totalHexagons = m_rowsNum * m_colsNum;
+    int occupiedHexagons = 0;
 
-    // Calculate the percentage of player-occupied hexagons
-    /*int occupiedHexagons = 0;
     for (int row = 0; row < m_rowsNum; row++)
     {
         for (int col = 0; col < m_colsNum; col++)
         {
-            if (m_board[row][col].occupiedStatus())
+            if (m_board[row][col].isOccupiedByPlayer())
             {
                 occupiedHexagons++;
             }
         }
     }
 
-    int totalHexagons = m_rowsNum * m_colsNum;
-    m_playerPercentage = (static_cast<double>(occupiedHexagons) / totalHexagons) * 100;*/
-
-    return 0;
+    float percentage = static_cast<float>(occupiedHexagons) / totalHexagons * 100.0f;
+    m_playerPercentage = percentage;
 }
+
+void Board::moveComputer(Difficulty desired_diffuclty)
+{
+    HexColor desiredColor;
+    std::queue<std::pair<int, int>> queue;
+
+    // Start from the bottom-left hexagon
+    int startRow = 0;
+    int startCol = m_colsNum -1 ;
+
+    //so we can travel on the neighbors on modular way:
+    int dx[] = { -1, -1, 0, 0, 1, 1 };
+    int dy[] = { 0, 1, -1, 1, -1, 0 };
+
+    if (desired_diffuclty == Difficulty::Easy)
+    {
+        //choose the desired color randomly: 
+
+        HexColor desiredColor = static_cast<HexColor>(std::rand() % static_cast<int>(HexColor::Magneta) + 1);
+        // Update the starting hexagon and enqueue it for BFS
+        m_board[startRow][startCol].setColor(desiredColor);
+        m_board[startRow][startCol].setOccupiedByComputerStatus(true);
+        queue.push({ startRow, startCol });
+
+        // Perform BFS to update the connected hexagons with the desired color
+        while (!queue.empty())
+        {
+            int row = queue.front().first;
+            int col = queue.front().second;
+            queue.pop();
+
+            // Check and update the neighboring hexagons with a different color
+            for (int i = 0; i < 6; i++)
+            {
+                int newRow = row + dx[i];
+                int newCol = col + dy[i];
+
+                // Check if the neighboring hexagon is within bounds
+                if (newRow >= 0 && newRow < m_rowsNum && newCol >= 0 && newCol < m_colsNum)
+                {
+                    if (m_board[newRow][newCol].getColor() == desiredColor)
+                    {
+                        if (!m_board[newRow][newCol].isOccupiedByComputer() && !m_board[newRow][newCol].isOccupiedByPlayer())
+                        {
+                            m_board[newRow][newCol].setOccupiedByComputerStatus(true);
+                            queue.push({ newRow, newCol });
+                        }
+                    }
+                    else if (m_board[newRow][newCol].isOccupiedByComputer())
+                    {
+                        m_board[newRow][newCol].setColor(desiredColor);
+                        queue.push({ newRow, newCol });
+                    }
+                }
+            }
+        }
+
+    }
+    else if (desired_diffuclty == Difficulty::Medium)
+    {
+
+    }
+    else if (desired_diffuclty == Difficulty::Hard)
+    {
+
+    }
+    //calculate the Computer percentage:
+    int totalHexagons = m_rowsNum * m_colsNum;
+    int occupiedHexagons = 0;
+
+    for (int row = 0; row < m_rowsNum; row++)
+    {
+        for (int col = 0; col < m_colsNum; col++)
+        {
+            if (m_board[row][col].isOccupiedByComputer())
+            {
+                occupiedHexagons++;
+            }
+        }
+    }
+
+    float percentage = static_cast<float>(occupiedHexagons) / totalHexagons * 100.0f;
+    m_computerPercentage = percentage;
+}
+
+
+
+float Board::getPlayerPercentage() const
+{
+    return m_playerPercentage;
+}
+float Board::getComputerPercentage() const
+{
+    return m_computerPercentage;
+}
+
+HexColor Board::maxNeighborColor(int col, int row)
+{
+    int redCounter = 0;
+    int blueCounter = 0;
+    int grayCounter = 0;
+    int greenCounter = 0;
+    int yellowCounter = 0;
+    int magnetaCounter = 0;
+
+    // Define the offsets to travel on the neighbors in a modular way
+    int dx[] = { -1, -1, 0, 0, 1, 1 };
+    int dy[] = { 0, 1, -1, 1, -1, 0 };
+
+    // Check the color with the highest counter in the neighbors
+    for (int i = 0; i < 6; i++)
+    {
+        int newRow = row + dx[i];
+        int newCol = col + dy[i];
+
+        switch (m_board[newCol][newRow].getColor())
+        {
+        case HexColor::Red:
+            redCounter++;
+            break;
+        case HexColor::Blue:
+            blueCounter++;
+            break;
+        case HexColor::Gray:
+            grayCounter++;
+            break;
+        case HexColor::Green:
+            greenCounter++;
+            break;
+        case HexColor::Yellow:
+            yellowCounter++;
+            break;
+        case HexColor::Magneta:
+            magnetaCounter++;
+            break;
+        }
+    }
+
+    // Determine the HexColor with the highest counter
+    HexColor maxColor = HexColor::Invalid;
+    int maxCounter = 0;
+
+    if (redCounter > maxCounter)
+    {
+        maxCounter = redCounter;
+        maxColor = HexColor::Red;
+    }
+
+    if (blueCounter > maxCounter)
+    {
+        maxCounter = blueCounter;
+        maxColor = HexColor::Blue;
+    }
+
+    if (grayCounter > maxCounter)
+    {
+        maxCounter = grayCounter;
+        maxColor = HexColor::Gray;
+    }
+
+    if (greenCounter > maxCounter)
+    {
+        maxCounter = greenCounter;
+        maxColor = HexColor::Green;
+    }
+
+    if (yellowCounter > maxCounter)
+    {
+        maxCounter = yellowCounter;
+        maxColor = HexColor::Yellow;
+    }
+
+    if (magnetaCounter > maxCounter)
+    {
+        maxCounter = magnetaCounter;
+        maxColor = HexColor::Magneta;
+    }
+
+    return maxColor;
+}
+
+

@@ -28,12 +28,22 @@ ToolFrame::ToolFrame()
 		m_magnetaHex.setColor(HexColor::Magneta),
 		m_magnetaHex.setRadius(2 * RADIUS);
 
-	//Percentages:
+	//Percentages of user:
+	font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
+	m_playerPercentage.setString(std::to_string(0));
+	m_playerPercentage.setFont(font);
+	m_playerPercentage.setCharacterSize(16);
+	m_playerPercentage.setPosition({ 0.05 * BOARD_WIDTH, 0.92 * BOARD_HEIGHT });
 
-
-	
-
+	//Percentages of computer
+	m_computerPercentage.setString(std::to_string(0));
+	m_computerPercentage.setFont(font);
+	m_computerPercentage.setCharacterSize(16);
+	m_computerPercentage.setPosition({ 0.85 * BOARD_WIDTH, 0.92 * BOARD_HEIGHT });
 	//Turn:
+
+	m_newButtom.setButtonInfo("New Game", { 0.15 * BOARD_WIDTH , 0.1 * BOARD_HEIGHT }, 0.05 * BOARD_HEIGHT,
+		sf::Color::Transparent, sf::Color::Red, { 0.8 * BOARD_WIDTH , 0 * BOARD_HEIGHT }, font);
 }
 
 
@@ -46,6 +56,10 @@ void ToolFrame::drawFrame(sf::RenderWindow* window)
 	window->draw(m_greenHex.getShape());
 	window->draw(m_yellowHex.getShape());
 	window->draw(m_magnetaHex.getShape());
+	window->draw(m_computerPercentage);
+	window->draw(m_playerPercentage);
+	m_newButtom.drawTo(*window);
+
 }
 
 
@@ -85,7 +99,20 @@ HexColor ToolFrame::checkIfColorClicked(const sf::Event::MouseButtonEvent& event
 	{
 		return HexColor::Magneta;
 	}
-
 	else
-		return HexColor::Invalid;
+	    return HexColor::Invalid;
+}
+
+
+void ToolFrame::setPlayerPercentage(float new_percentage)
+{
+	m_playerPercentage.setString(std::to_string(new_percentage));
+}
+void ToolFrame::setComputerPercentage(float new_percentage)
+{
+	m_computerPercentage.setString(std::to_string(new_percentage));
+}
+const Button& ToolFrame::getNewButton() const 
+{
+	return m_newButtom;
 }

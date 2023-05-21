@@ -2,7 +2,7 @@
 
 
 //emptry default constructor:
-Controller::Controller() 
+Controller::Controller() : m_computerWon(false), m_playerWon(false)
 {
     m_font.loadFromFile("C:/Windows/Fonts/Arial.ttf");
 
@@ -27,68 +27,117 @@ Controller::Controller()
 void Controller::run(sf::RenderWindow* window)
 {
     bool diffcultySelected = false;
-    //presenting the diffuclty screen:
-    while (window->isOpen() && !diffcultySelected)
+    bool startGame = true;
+    while (startGame)
     {
-        window->clear();
-
-        // Draw level buttons
-        m_easyBotton.drawTo(*window);
-        m_midumButton.drawTo(*window);
-        m_hardButton.drawTo(*window);
-        m_exitButton.drawTo(*window);
-
-        //Display:
-        window->display();
-
-        
-        if (auto event = sf::Event{}; window->pollEvent(event))
+        //presenting the diffuclty screen:
+        while (window->isOpen() && !diffcultySelected)
         {
-            switch (event.type)
-            {
-            case sf::Event::Closed:
-                window->close();
-                break;
+            window->clear();
 
-            case sf::Event::MouseButtonReleased:
-                diffcultySelected = handleClick(event.mouseButton, window);
-                break;
-                //mouse houvering over buttons:
-            case sf::Event::MouseMoved:
-                handleHoverOver(window);
-                break;
+            // Draw level buttons
+            m_easyBotton.drawTo(*window);
+            m_midumButton.drawTo(*window);
+            m_hardButton.drawTo(*window);
+            m_exitButton.drawTo(*window);
+
+            //Display:
+            window->display();
+
+
+            if (auto event = sf::Event{}; window->pollEvent(event))
+            {
+                switch (event.type)
+                {
+                case sf::Event::Closed:
+                    window->close();
+                    break;
+
+                case sf::Event::MouseButtonReleased:
+                    diffcultySelected = handleClick(event.mouseButton, window);
+                    break;
+                    //mouse houvering over buttons:
+                case sf::Event::MouseMoved:
+                    handleHoverOver(window);
+                    break;
+                }
             }
+        }
+
+        //We took the diffculty now we build the board:
+        m_computerWon = false;
+        m_playerWon = false;
+        auto board = Board();
+        auto toolframe = ToolFrame();
+        bool restart = false;
+        while (window->isOpen() && !restart && !m_computerWon && !m_playerWon)
+        {
+            window->clear();
+            board.drawBoard(window);
+            toolframe.drawFrame(window);
+            window->display();
+
+
+
+            if (auto event = sf::Event{};  window->pollEvent(event))
+            {
+                switch (event.type)
+                {
+                case sf::Event::Closed:
+                    window->close();
+                    break;
+                case sf::Event::MouseButtonPressed:
+                    if (toolframe.getNewButton().getbutton().getGlobalBounds().contains(
+                        window->mapPixelToCoords({ event.mouseButton.x, event.mouseButton.y })))
+                    {
+                        restart = true;
+                        break;
+                    }
+                    auto pressedColor = toolframe.checkIfColorClicked(event.mouseButton, window);
+                    board.movePlayer(pressedColor);
+                    toolframe.setPlayerPercentage(board.getPlayerPercentage());
+                    if (board.getPlayerPercentage() >= 50)
+                    {
+                        m_playerWon = true;
+                        break;
+                    }
+                    board.moveComputer(m_diffculty);
+                    toolframe.setComputerPercentage(board.getComputerPercentage());
+                    if (board.getComputerPercentage() >= 50)
+                    {
+                        m_computerWon = true;
+                        break;
+                    }
+                    break;
+                }
+            }
+
+        }
+        sf::Clock goClock;
+        if (m_computerWon)
+        {
+            /*goClock.restart();
+            while (window->isOpen())
+            {
+                window->clear();
+                window->draw(gameOverSprite);
+                window->display();*/
+                exit(EXIT_SUCCESS);
+            //}
+        }
+        else if (m_playerWon)
+        {
+            /*goClock.restart();
+            while (window->isOpen())
+            {
+                window->clear();
+                window->draw(gameOverSprite);
+                window->display();*/
+                exit(EXIT_SUCCESS);
+            //}
         }
     }
 
-    //We took the diffculty now we build the board:
-    auto board = Board();
-    auto toolframe = ToolFrame();
-
-    while (window->isOpen())
-    {
-        window->clear();
-        board.drawBoard(window);
-        toolframe.drawFrame(window);
-        window->display();
-
-
-
-        if (auto event = sf::Event{}; window->waitEvent(event))
-        {
-            switch (event.type)
-            {
-            case sf::Event::Closed:
-                window->close();
-                break;
-            case sf::Event::MouseButtonReleased: // check which color the player clicked:
-                auto pressedColor = toolframe.checkIfColorClicked(event.mouseButton, window);
-                board.movePlayer(pressedColor);
-                //board.handleComputer(m_diffculty);
-                break;
-            }
-        }
-    }
 }
 //-------------------------------------------------------------------
 //This function takes event as input and handle it accordingly:

@@ -21,7 +21,8 @@ private:
 
     sf::Font m_font;
 
-    //NEW BUTTON:
+    bool m_computerWon;
+    bool m_playerWon;
 
 
 public:
@@ -29,4 +30,6 @@ public:
     void run(sf::RenderWindow* window);
     bool handleClick(const sf::Event::MouseButtonEvent& event, sf::RenderWindow* window);
     void handleHoverOver(sf::RenderWindow* window);
+    ~Controller() {};
+
 };

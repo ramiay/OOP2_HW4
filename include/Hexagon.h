@@ -7,7 +7,11 @@ class Hexagon
 {
 private:
 	sf::CircleShape m_shape;
-	bool m_isOcuupied = false;
+	bool m_isOccupiedByPlayer = false;
+	bool m_isOcuupiedByComputer = false;
+	std::vector<std::shared_ptr<Hexagon>> m_adjacentsList;
+
+
 public:
 	Hexagon();
 	HexColor getColor() const;
@@ -17,6 +21,14 @@ public:
 	sf::CircleShape getShape() const;
 	void setRadius(float radius);
 
-	bool occupiedStatus() const;
-	void setOccupiedStatus(bool status);
+	bool isOccupiedByPlayer() const;
+	void setOccupiedByPlayerStatus(bool status);
+	
+	bool isOccupiedByComputer() const;
+	void setOccupiedByComputerStatus(bool status);
+
+	void addAdjacent(const std::shared_ptr<Hexagon>& hex);
+	std::vector<std::shared_ptr<Hexagon>>& getAdjacents();
+
+
 };

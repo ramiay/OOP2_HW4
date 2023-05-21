@@ -63,6 +63,8 @@ StartMenu::StartMenu()
 			case sf::Event::MouseMoved:
 				handleHoverOver(m_window);
 				break;
+			default:
+				break;
 			}
 		}
 	}
@@ -90,6 +92,11 @@ void StartMenu::handleClick(const sf::Event::MouseButtonEvent& event)
 		//run the help window:
 		helpWindow.help_run(m_window);
 	}
+	if (m_exit_button.getbutton().getGlobalBounds().contains(
+		m_window->mapPixelToCoords({ event.x, event.y })))
+	{
+		m_window->close();
+ 	}
 
 	
 }
