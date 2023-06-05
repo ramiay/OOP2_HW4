@@ -12,6 +12,7 @@ private:
 	std::vector<std::shared_ptr<Hexagon>> m_adjacentsList;
 
 
+
 public:
 	Hexagon();
 	HexColor getColor() const;
@@ -29,6 +30,5 @@ public:
 
 	void addAdjacent(const std::shared_ptr<Hexagon>& hex);
 	std::vector<std::shared_ptr<Hexagon>>& getAdjacents();
-
 
 };

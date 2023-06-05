@@ -54,6 +54,7 @@ StartMenu::StartMenu()
 				//closing window:
 			case sf::Event::Closed:
 				m_window->close();
+				exit(EXIT_SUCCESS);
 				break;
 				//mouse clicked:
 			case sf::Event::MouseButtonReleased:

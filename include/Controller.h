@@ -24,6 +24,11 @@ private:
     bool m_computerWon;
     bool m_playerWon;
 
+    sf::Texture GameOverTexture;
+    sf::Texture You_winTexture;
+    //sprite
+    sf::Sprite GameOverSprite;
+    sf::Sprite You_winSprite;
 
 public:
     Controller();

@@ -14,7 +14,6 @@ class Board{
 
 private:
 	std::vector<std::vector<Hexagon>> m_board;
-	void createAdjacentLists();
 
 
 	const int m_drawingHeight = 0.9 * BOARD_HEIGHT;
@@ -33,6 +32,10 @@ private:
 	double m_playerPercentage;
 	double m_computerPercentage;
 
+	//Last colors used by computer and player:
+	HexColor m_LastUserColor;
+	HexColor m_LastComColor;
+
 public:
 
 	Board();
@@ -42,6 +45,11 @@ public:
 	void moveComputer(Difficulty desired_diffuclty);
 	float getPlayerPercentage() const;
 	float getComputerPercentage() const;
-	HexColor maxNeighborColor(int col, int row);
+	HexColor maxNeighborColor(int in_col, int in_row, Difficulty level);
+	void travelOnBoard(HexColor desiredColor, int startCol, int startRow);
 	//int moveComputer(Difficulty diffculty);
+	void createAdjacentLists();
+
+
+
 };

@@ -21,6 +21,16 @@ Controller::Controller() : m_computerWon(false), m_playerWon(false)
     //setting the exit button:
     m_exitButton.setButtonInfo("Exit Mode", { 0.2 * BOARD_WIDTH, 0.12 * BOARD_HEIGHT }, 0.05 * BOARD_HEIGHT,
         sf::Color::Transparent, sf::Color::Yellow, { 0.4 * BOARD_WIDTH , 0.8 * BOARD_HEIGHT }, m_font);
+
+    GameOverTexture.loadFromFile("GameOver.png");
+    You_winTexture.loadFromFile("Winner.png");
+
+    //sprite
+    GameOverSprite = sf::Sprite(GameOverTexture);
+    You_winSprite = sf::Sprite(You_winTexture);
+
+    GameOverSprite.setPosition((BOARD_WIDTH / 2) - GameOverSprite.getGlobalBounds().width / 2, (BOARD_HEIGHT/2) - GameOverSprite.getGlobalBounds().height / 2);
+    You_winSprite.setPosition((BOARD_WIDTH / 2) - You_winSprite.getGlobalBounds().width / 2, (BOARD_HEIGHT / 2) - You_winSprite.getGlobalBounds().height / 2);
 }
 
 
@@ -51,6 +61,7 @@ void Controller::run(sf::RenderWindow* window)
                 {
                 case sf::Event::Closed:
                     window->close();
+                    exit(EXIT_SUCCESS);
                     break;
 
                 case sf::Event::MouseButtonReleased:
@@ -85,6 +96,7 @@ void Controller::run(sf::RenderWindow* window)
                 {
                 case sf::Event::Closed:
                     window->close();
+                    exit(EXIT_SUCCESS);
                     break;
                 case sf::Event::MouseButtonPressed:
                     if (toolframe.getNewButton().getbutton().getGlobalBounds().contains(
@@ -116,25 +128,26 @@ void Controller::run(sf::RenderWindow* window)
         sf::Clock goClock;
         if (m_computerWon)
         {
-            /*goClock.restart();
-            while (window->isOpen())
+
+            goClock.restart();
+            while (window->isOpen() && goClock.getElapsedTime().asSeconds() < 3)
             {
                 window->clear();
-                window->draw(gameOverSprite);
-                window->display();*/
-                exit(EXIT_SUCCESS);
-            //}
+                window->draw(GameOverSprite);
+                window->display();
+            }
+            exit(EXIT_SUCCESS);
+
         }
         else if (m_playerWon)
         {
-            /*goClock.restart();
-            while (window->isOpen())
-            {
+            goClock.restart();
+            while (window->isOpen() && goClock.getElapsedTime().asSeconds() < 3) {
                 window->clear();
-                window->draw(gameOverSprite);
-                window->display();*/
-                exit(EXIT_SUCCESS);
-            //}
+                window->draw(You_winSprite);
+                window->display();
+            }
+            exit(EXIT_SUCCESS);
         }
     }
 
@@ -171,6 +184,10 @@ bool Controller::handleClick(const sf::Event::MouseButtonEvent& event, sf::Rende
         window->mapPixelToCoords({ event.x, event.y })))
     {
         window->close();
+        return false;
+    }
+    else
+    {
         return false;
     }
 
